@@ -1,0 +1,16 @@
+export default function App() {
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800">
+      <header className="bg-white border-b border-slate-200 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            都道府県別 人口推移グラフ
+          </h1>
+        </div>
+      </header>
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <p className="text-slate-600">アプリケーションの準備中...</p>
+      </main>
+    </div>
+  );
+}
