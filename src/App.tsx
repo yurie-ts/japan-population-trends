@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import PrefectureSelector from '@/components/PrefectureSelector';
 import { Prefecture } from '@/types/prefecture';
+import PopulationChart from './components/PopulationChart';
 
 export default function App() {
   // 選択された都道府県のリスト
@@ -27,18 +28,9 @@ export default function App() {
           />
         </section>
 
-        {/* グラフ表示エリア（次のステップで実装） */}
-        <section className="bg-white p-6 rounded-lg border border-slate-200 text-center text-slate-500">
-          {selectedPrefectures.length === 0 ? (
-            <p>都道府県を選択してください</p>
-          ) : (
-            <p className="text-slate-800">
-              選択中:{' '}
-              <span className="font-semibold">
-                {selectedPrefectures.map((p) => p.prefName).join('、')}
-              </span>
-            </p>
-          )}
+        {/* グラフ表示エリア */}
+        <section aria-label="人口推移グラフ">
+          <PopulationChart selectedPrefectures={selectedPrefectures} />
         </section>
       </main>
     </div>
