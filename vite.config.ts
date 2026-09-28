@@ -12,6 +12,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      // '/api' で始まるリクエストをゆめみAPIに中継する
+      '/api': {
+        target: 'https://frontend-engineer-codecheck-api.mirai.yumemi.io',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
