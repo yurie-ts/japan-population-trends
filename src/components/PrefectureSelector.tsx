@@ -51,7 +51,7 @@ export default function PrefectureSelector({
     return (
       <div className="p-4 bg-red-50 rounded-lg border border-red-200">
         <p className="text-sm text-red-600">
-          {error?.message ?? '都道府県一覧の取得に失敗しました。'}
+          {error?.message ?? '都道府県一覧の取得に失敗しました'}
         </p>
       </div>
     );
