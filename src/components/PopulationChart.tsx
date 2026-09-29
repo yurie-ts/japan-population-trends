@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, ReactNode } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -134,18 +134,20 @@ export default function PopulationChart({
             margin={{ top: 10, right: 30, left: 20, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis
-              dataKey="year"
-              label={{
-                value: '年度',
-                position: 'insideBottomRight',
-                offset: -10,
-              }}
-            />
+            <XAxis dataKey="year" unit="年" />
             <YAxis
-              label={{ value: '人口数', angle: -90, position: 'insideLeft' }}
+              tickFormatter={(value: number) =>
+                `${Math.floor(value / 10000).toLocaleString()}万人`
+              }
             />
-            <Tooltip />
+            <Tooltip
+              labelFormatter={(label: ReactNode) => `${label}年`}
+              formatter={(value) =>
+                typeof value === 'number'
+                  ? `${Math.floor(value / 10000).toLocaleString()}万人`
+                  : value
+              }
+            />
             <Legend />
             {selectedPrefectures.map((pref, index) => (
               <Line
