@@ -23,6 +23,15 @@ export const LINE_COLORS = [
 ] as const;
 
 /**
+ * グラフのテーマカラー
+ */
+export const CHART_THEME = {
+  grid: colors.slate[200],
+  axis: colors.slate[600],
+  cursor: colors.slate[900],
+} as const;
+
+/**
  * 選択順インデックスに応じた色を取得する（定義数を超えた場合は循環）
  */
 export const getPrefectureColor = (index: number): string => {

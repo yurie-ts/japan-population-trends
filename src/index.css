@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+@theme {
+  --font-pixel: 'Geist Pixel', monospace;
+}
+
 @layer base {
   html {
     font-feature-settings: 'palt';

@@ -33,7 +33,7 @@ vi.mock('recharts', async () => {
             isTooltipActive: true,
             activeTooltipIndex: 0,
             activeLabel: 1960,
-          });
+          } as unknown as MouseHandlerDataParam);
         }}
         onMouseLeave={() => {
           onMouseLeave?.();
@@ -182,8 +182,9 @@ describe('PopulationChart コンポーネント', () => {
     const youngTab = screen.getByRole('button', { name: '年少人口' });
     await user.click(youngTab);
 
-    // 「年少人口」がアクティブ（青色）になったか確認
-    expect(youngTab).toHaveClass('bg-blue-600');
+    // 「年少人口」がアクティブ（選択中）になったか確認
+    expect(youngTab).toHaveAttribute('aria-pressed', 'true');
+    expect(youngTab).toHaveClass('text-slate-900');
   });
 
   // ホバー時のテスト
