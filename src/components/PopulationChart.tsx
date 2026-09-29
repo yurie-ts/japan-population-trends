@@ -126,7 +126,9 @@ export default function PopulationChart({
             <XAxis dataKey="year" unit="年" />
             <YAxis
               tickFormatter={(value: number) =>
-                `${Math.floor(value / 10000).toLocaleString()}万人`
+                value === 0
+                  ? ''
+                  : `${Math.floor(value / 10000).toLocaleString()}万人`
               }
             />
             <Tooltip
@@ -136,8 +138,21 @@ export default function PopulationChart({
                   ? `${Math.floor(value / 10000).toLocaleString()}万人`
                   : value
               }
+              itemSorter={(item) => {
+                const pref = selectedPrefectures.find(
+                  (p) => p.prefName === item.name,
+                );
+                return pref ? pref.prefCode : 0;
+              }}
             />
-            <Legend />
+            <Legend
+              itemSorter={(item) => {
+                const pref = selectedPrefectures.find(
+                  (p) => p.prefName === item.value,
+                );
+                return pref ? pref.prefCode : 0;
+              }}
+            />
             {selectedPrefectures.map((pref, index) => (
               <Line
                 key={pref.prefCode}

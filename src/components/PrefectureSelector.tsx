@@ -27,20 +27,48 @@ export default function PrefectureSelector({
     const isAlreadySelected = selectedPrefectures.some(
       (p) => p.prefCode === pref.prefCode,
     );
+    // 選択済みの場合は削除
     if (isAlreadySelected) {
-      // すでに選択済みなら除外して親に通知
       onSelectionChange(
         selectedPrefectures.filter((p) => p.prefCode !== pref.prefCode),
       );
+      // 未選択の場合は追加
     } else {
-      // 未選択なら追加して親に通知
-      onSelectionChange([...selectedPrefectures, pref]);
+      onSelectionChange(
+        [...selectedPrefectures, pref].sort((a, b) => a.prefCode - b.prefCode),
+      );
     }
   };
 
   // チェックボックスの全選択解除
   const handleClearAll = () => {
     onSelectionChange([]);
+  };
+
+  // 地方単位の一括選択 / 解除
+  const handleRegionToggle = (regionPrefectures: Prefecture[]) => {
+    const isAllSelected = regionPrefectures.every((p) =>
+      selectedPrefectures.some((sp) => sp.prefCode === p.prefCode),
+    );
+
+    if (isAllSelected) {
+      // その地方の県をすべて除外
+      const regionCodes = new Set(regionPrefectures.map((p) => p.prefCode));
+      onSelectionChange(
+        selectedPrefectures.filter((p) => !regionCodes.has(p.prefCode)),
+      );
+    } else {
+      // その地方で未選択の県を追加
+      const currentCodes = new Set(selectedPrefectures.map((p) => p.prefCode));
+      const toAdd = regionPrefectures.filter(
+        (p) => !currentCodes.has(p.prefCode),
+      );
+      onSelectionChange(
+        [...selectedPrefectures, ...toAdd].sort(
+          (a, b) => a.prefCode - b.prefCode,
+        ),
+      );
+    }
   };
 
   // ローディング表示
@@ -98,6 +126,7 @@ export default function PrefectureSelector({
           </button>
         </summary>
 
+        {/* 地方ごとのグループ */}
         <div className="space-y-4">
           {REGIONS.map((region) => {
             // その地方に属する都道府県を抽出
@@ -107,14 +136,27 @@ export default function PrefectureSelector({
 
             if (regionPrefectures.length === 0) return null;
 
+            // その地方の都道府県がすべて選択されているか判定
+            const isAllSelected = regionPrefectures.every((p) =>
+              selectedPrefectures.some((sp) => sp.prefCode === p.prefCode),
+            );
+
             return (
               <div
                 key={region.regionName}
                 className="border-t border-slate-100 pt-3 first:border-0 first:pt-0"
               >
-                <h3 className="text-xs font-semibold text-slate-500 mb-2">
-                  {region.regionName}
-                </h3>
+                <div className="mb-2">
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-xs font-bold text-slate-700 hover:text-slate-900">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={() => handleRegionToggle(regionPrefectures)}
+                      className="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <span>{region.regionName}</span>
+                  </label>
+                </div>
                 <div className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1.5">
                   {regionPrefectures.map((pref) => {
                     const isChecked = selectedPrefectures.some(
