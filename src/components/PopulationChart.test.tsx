@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import PopulationChart from './PopulationChart';
 import * as hooks from '@/hooks/usePopulation';
 import { Prefecture } from '@/types/prefecture';
+import type { MouseHandlerDataParam } from 'recharts';
 
 // JSDOM環境でRechartsのSVG描画がスキップされないようにモック
 vi.mock('recharts', async () => {
@@ -16,11 +17,28 @@ vi.mock('recharts', async () => {
     LineChart: ({
       children,
       data,
+      onMouseMove,
+      onMouseLeave,
     }: {
       children: React.ReactNode;
       data?: Record<string, number>[];
+      onMouseMove?: (state: MouseHandlerDataParam) => void;
+      onMouseLeave?: () => void;
     }) => (
-      <div data-testid="line-chart" data-chart={JSON.stringify(data)}>
+      <div
+        data-testid="line-chart"
+        data-chart={JSON.stringify(data)}
+        onMouseEnter={() => {
+          onMouseMove?.({
+            isTooltipActive: true,
+            activeTooltipIndex: 0,
+            activeLabel: 1960,
+          });
+        }}
+        onMouseLeave={() => {
+          onMouseLeave?.();
+        }}
+      >
         {children}
       </div>
     ),
@@ -110,7 +128,8 @@ describe('PopulationChart コンポーネント', () => {
     });
 
     render(<PopulationChart selectedPrefectures={[mockHokkaido]} />);
-    expect(screen.getByText('北海道')).toBeInTheDocument();
+    const legend = screen.getByTestId('chart-legend');
+    expect(within(legend).getByText('北海道')).toBeInTheDocument();
   });
 
   // 2つに増えた時（複数選択）のテスト
@@ -126,8 +145,9 @@ describe('PopulationChart コンポーネント', () => {
     });
 
     render(<PopulationChart selectedPrefectures={[mockHokkaido, mockTokyo]} />);
-    expect(screen.getByText('北海道')).toBeInTheDocument();
-    expect(screen.getByText('東京都')).toBeInTheDocument();
+    const legend = screen.getByTestId('chart-legend');
+    expect(within(legend).getByText('北海道')).toBeInTheDocument();
+    expect(within(legend).getByText('東京都')).toBeInTheDocument();
   });
 
   // 選択解除時のテスト
@@ -141,8 +161,9 @@ describe('PopulationChart コンポーネント', () => {
     });
 
     render(<PopulationChart selectedPrefectures={[mockHokkaido]} />);
-    expect(screen.getByText('北海道')).toBeInTheDocument();
-    expect(screen.queryByText('東京都')).not.toBeInTheDocument();
+    const legend = screen.getByTestId('chart-legend');
+    expect(within(legend).getByText('北海道')).toBeInTheDocument();
+    expect(within(legend).queryByText('東京都')).not.toBeInTheDocument();
   });
 
   // タブ切り替え時のテスト
@@ -163,5 +184,41 @@ describe('PopulationChart コンポーネント', () => {
 
     // 「年少人口」がアクティブ（青色）になったか確認
     expect(youngTab).toHaveClass('bg-blue-600');
+  });
+
+  // ホバー時のテスト
+  it('グラフにカーソルを合わせたとき、該当年度の人口数値が凡例に表示されること', async () => {
+    const user = userEvent.setup();
+
+    vi.spyOn(hooks, 'usePopulation').mockReturnValue({
+      data: [{ pref: mockHokkaido, population: mockHokkaidoPopulation }],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<PopulationChart selectedPrefectures={[mockHokkaido]} />);
+    const chart = screen.getByTestId('line-chart');
+    const legend = screen.getByTestId('chart-legend');
+
+    // 通常時は案内テキストが表示されている
+    expect(
+      within(legend).getByText('グラフを選択すると各年度の数値を表示します'),
+    ).toBeInTheDocument();
+
+    // グラフにホバー
+    await user.hover(chart);
+
+    // 年度バッジと人口数値が表示される
+    expect(within(legend).getByText(/1960年/)).toBeInTheDocument();
+    expect(within(legend).getByText('500万人')).toBeInTheDocument();
+
+    // ホバーを外す
+    await user.unhover(chart);
+
+    // 再び案内テキストに戻る
+    expect(
+      within(legend).getByText('グラフを選択すると各年度の数値を表示します'),
+    ).toBeInTheDocument();
   });
 });
