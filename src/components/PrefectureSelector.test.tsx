@@ -96,4 +96,48 @@ describe('PrefectureSelector コンポーネント', () => {
       { prefCode: 1, prefName: '北海道' },
     ]);
   });
+
+  // すべて解除ボタンの動作テスト
+  it('「すべて解除」ボタンをクリックした時、空の配列で onSelectionChange が呼ばれること', async () => {
+    const user = userEvent.setup();
+    const handleSelectionChange = vi.fn();
+
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[{ prefCode: 1, prefName: '北海道' }]}
+        onSelectionChange={handleSelectionChange}
+      />,
+    );
+
+    const clearButton = screen.getByRole('button', { name: 'すべて解除' });
+    expect(clearButton).not.toBeDisabled();
+    await user.click(clearButton);
+
+    expect(handleSelectionChange).toHaveBeenCalledWith([]);
+  });
+
+  // 未選択時のボタン非活性テスト
+  it('都道府県が未選択の時、「すべて解除」ボタンが無効化されていること', () => {
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[]}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    const clearButton = screen.getByRole('button', { name: 'すべて解除' });
+    expect(clearButton).toBeDisabled();
+  });
 });
