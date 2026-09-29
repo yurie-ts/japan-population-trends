@@ -117,6 +117,8 @@ describe('PrefectureSelector コンポーネント', () => {
 
     const clearButton = screen.getByRole('button', { name: 'すべて解除' });
     expect(clearButton).not.toBeDisabled();
+    // 選択件数が表示されていること
+    expect(screen.getByText('1件選択中')).toBeInTheDocument();
     await user.click(clearButton);
 
     expect(handleSelectionChange).toHaveBeenCalledWith([]);
@@ -139,6 +141,8 @@ describe('PrefectureSelector コンポーネント', () => {
 
     const clearButton = screen.getByRole('button', { name: 'すべて解除' });
     expect(clearButton).toBeDisabled();
+    // 未選択時は選択中テキストが表示されないこと
+    expect(screen.queryByText(/選択中/)).not.toBeInTheDocument();
   });
 
   // 地方チェックボックスの一括選択テスト

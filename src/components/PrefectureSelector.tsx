@@ -113,17 +113,25 @@ export default function PrefectureSelector({
               />
             </svg>
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClearAll();
-            }}
-            disabled={selectedPrefectures.length === 0}
-            className="text-xs px-3 py-1.5 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
-          >
-            すべて解除
-          </button>
+
+          <div className="flex items-center gap-3">
+            {selectedPrefectures.length > 0 && (
+              <span className="text-xs text-slate-500 select-none">
+                {selectedPrefectures.length}件選択中
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClearAll();
+              }}
+              disabled={selectedPrefectures.length === 0}
+              className="text-xs px-3 py-1.5 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              すべて解除
+            </button>
+          </div>
         </summary>
 
         {/* 地方ごとのグループ */}
