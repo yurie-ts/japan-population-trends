@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://frontend-engineer-codecheck-api.mirai.yumemi.io/api/:match*"
+    }
+  ]
+}
