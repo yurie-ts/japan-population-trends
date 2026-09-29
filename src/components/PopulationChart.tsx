@@ -9,21 +9,10 @@ import {
   Legend,
   Tooltip,
 } from 'recharts';
+import { getPrefectureColor } from '@/constants/colors';
 import { usePopulation } from '@/hooks/usePopulation';
 import { Prefecture } from '@/types/prefecture';
 import { PopulationCategory, POPULATION_CATEGORIES } from '@/types/population';
-
-// 折れ線の色リスト
-const LINE_COLORS = [
-  '#2563eb', // 青
-  '#dc2626', // 赤
-  '#16a34a', // 緑
-  '#d97706', // 橙
-  '#9333ea', // 紫
-  '#0891b2', // 水色
-  '#ea580c', // オレンジ
-  '#4f46e5', // 藍色
-];
 
 /**
  * 人口推移グラフコンポーネントの Props 定義
@@ -154,7 +143,7 @@ export default function PopulationChart({
                 key={pref.prefCode}
                 type="monotone"
                 dataKey={pref.prefName}
-                stroke={LINE_COLORS[index % LINE_COLORS.length]}
+                stroke={getPrefectureColor(index)}
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
