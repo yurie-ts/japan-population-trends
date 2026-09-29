@@ -96,4 +96,112 @@ describe('PrefectureSelector コンポーネント', () => {
       { prefCode: 1, prefName: '北海道' },
     ]);
   });
+
+  // すべて解除ボタンの動作テスト
+  it('「すべて解除」ボタンをクリックした時、空の配列で onSelectionChange が呼ばれること', async () => {
+    const user = userEvent.setup();
+    const handleSelectionChange = vi.fn();
+
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[{ prefCode: 1, prefName: '北海道' }]}
+        onSelectionChange={handleSelectionChange}
+      />,
+    );
+
+    const clearButton = screen.getByRole('button', { name: 'すべて解除' });
+    expect(clearButton).not.toBeDisabled();
+    // 選択件数が表示されていること
+    expect(screen.getByText('1件選択中')).toBeInTheDocument();
+    await user.click(clearButton);
+
+    expect(handleSelectionChange).toHaveBeenCalledWith([]);
+  });
+
+  // 未選択時のボタン非活性テスト
+  it('都道府県が未選択の時、「すべて解除」ボタンが無効化されていること', () => {
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[]}
+        onSelectionChange={() => {}}
+      />,
+    );
+
+    const clearButton = screen.getByRole('button', { name: 'すべて解除' });
+    expect(clearButton).toBeDisabled();
+    // 未選択時は選択中テキストが表示されないこと
+    expect(screen.queryByText(/選択中/)).not.toBeInTheDocument();
+  });
+
+  // 地方チェックボックスの一括選択テスト
+  it('地方チェックボックスをクリックした時、その地方の都道府県が一括選択されること', async () => {
+    const user = userEvent.setup();
+    const handleSelectionChange = vi.fn();
+
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[]}
+        onSelectionChange={handleSelectionChange}
+      />,
+    );
+
+    // 「北海道・東北」の地方チェックボックスをクリック
+    const regionCheckbox = screen.getByRole('checkbox', {
+      name: '北海道・東北',
+    });
+    await user.click(regionCheckbox);
+
+    // mockPrefectures のうち「北海道・東北」に属する北海道が追加されること
+    expect(handleSelectionChange).toHaveBeenCalledWith([
+      { prefCode: 1, prefName: '北海道' },
+    ]);
+  });
+
+  // 地方チェックボックスの一括解除テスト
+  it('地方の都道府県が全選択されている時、地方チェックボックスをクリックすると一括解除されること', async () => {
+    const user = userEvent.setup();
+    const handleSelectionChange = vi.fn();
+
+    vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
+      data: mockPrefectures,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof hooks.usePrefectures>);
+
+    render(
+      <PrefectureSelector
+        selectedPrefectures={[{ prefCode: 1, prefName: '北海道' }]}
+        onSelectionChange={handleSelectionChange}
+      />,
+    );
+
+    // 北海道が選択中なので「北海道・東北」チェックボックスはONになっているはず
+    const regionCheckbox = screen.getByRole('checkbox', {
+      name: '北海道・東北',
+    });
+    expect(regionCheckbox).toBeChecked();
+
+    await user.click(regionCheckbox);
+
+    // 北海道が除外されて空になること
+    expect(handleSelectionChange).toHaveBeenCalledWith([]);
+  });
 });

@@ -6,24 +6,13 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend,
   Tooltip,
+  type MouseHandlerDataParam,
 } from 'recharts';
+import { getPrefectureColor, CHART_THEME } from '@/constants/colors';
 import { usePopulation } from '@/hooks/usePopulation';
 import { Prefecture } from '@/types/prefecture';
 import { PopulationCategory, POPULATION_CATEGORIES } from '@/types/population';
-
-// 折れ線の色リスト
-const LINE_COLORS = [
-  '#2563eb', // 青
-  '#dc2626', // 赤
-  '#16a34a', // 緑
-  '#d97706', // 橙
-  '#9333ea', // 紫
-  '#0891b2', // 水色
-  '#ea580c', // オレンジ
-  '#4f46e5', // 藍色
-];
 
 /**
  * 人口推移グラフコンポーネントの Props 定義
@@ -43,9 +32,13 @@ export default function PopulationChart({
   const [selectedCategory, setSelectedCategory] =
     useState<PopulationCategory>('総人口');
 
+  // グラフ上でホバーされている年度のデータ
+  const [hoveredData, setHoveredData] = useState<Record<string, number> | null>(
+    null,
+  );
+
   // TanStack Query で選択中都道府県の人口データを取得
-  const { data, isLoading, isError, error } =
-    usePopulation(selectedPrefectures);
+  const { data, isError, error } = usePopulation(selectedPrefectures);
 
   // Recharts 用のデータ形式に整形する
   const chartData = useMemo(() => {
@@ -84,8 +77,13 @@ export default function PopulationChart({
   // 都道府県の未選択表示
   if (selectedPrefectures.length === 0) {
     return (
-      <div className="bg-white p-8 rounded-lg border border-slate-200 text-center text-slate-500">
-        <p>都道府県を選択してください</p>
+      <div className="bg-white p-12 border border-slate-900 text-center text-slate-500">
+        <p className="font-pixel text-xs text-slate-400 uppercase tracking-wider mb-2">
+          No Prefecture Selected
+        </p>
+        <p className="text-sm font-medium text-slate-600">
+          都道府県を選択してください
+        </p>
       </div>
     );
   }
@@ -93,72 +91,162 @@ export default function PopulationChart({
   // エラー表示
   if (isError) {
     return (
-      <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center text-red-600">
-        <p>{error?.message ?? '人口データの取得に失敗しました'}</p>
+      <div className="bg-white p-8 border border-red-600 text-center text-red-600">
+        <p className="font-pixel text-xs uppercase tracking-wider mb-2">
+          Data Load Error
+        </p>
+        <p className="text-sm font-medium">
+          {error?.message ?? '人口データの取得に失敗しました'}
+        </p>
       </div>
     );
   }
 
+  // グラフホバー時のデータ更新ハンドラ
+  const handleChartMove = (state: MouseHandlerDataParam) => {
+    if (state && state.isTooltipActive) {
+      const index =
+        typeof state.activeTooltipIndex === 'number'
+          ? state.activeTooltipIndex
+          : null;
+      const year = Number(state.activeLabel);
+      const dataPoint =
+        (index != null ? chartData[index] : null) ??
+        chartData.find((d) => d.year === year);
+      if (dataPoint) {
+        setHoveredData(dataPoint);
+      }
+    }
+  };
+
   return (
-    <div className="bg-white p-4 sm:p-6 rounded-lg border border-slate-200 space-y-6">
+    <div className="bg-white border border-slate-900 flex flex-col">
       {/* カテゴリ切り替えタブ */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        {POPULATION_CATEGORIES.map((category) => (
-          <button
-            key={category}
-            type="button"
-            onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-              selectedCategory === category
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+      <div className="grid grid-cols-4 lg:flex border-b border-slate-900 bg-white">
+        {POPULATION_CATEGORIES.map((category) => {
+          const isSelected = selectedCategory === category;
+          return (
+            <button
+              key={category}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => setSelectedCategory(category)}
+              className={`relative flex items-center justify-center px-1 sm:px-4 py-2.5 sm:py-3 text-[11px] min-[390px]:text-xs sm:text-sm font-medium border-r border-slate-900 last:border-r-0 lg:w-auto lg:px-5 lg:py-3 lg:text-sm lg:last:border-r transition-colors cursor-pointer text-center ${
+                isSelected
+                  ? 'text-slate-900'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <span className="inline-flex items-center justify-center">
+                <span
+                  className={`font-pixel inline-block w-2 text-center transition-opacity ${
+                    isSelected ? 'opacity-100 text-slate-900' : 'opacity-0'
+                  }`}
+                  aria-hidden="true"
+                >
+                  [
+                </span>
+                <span className="px-0.5">{category}</span>
+                <span
+                  className={`font-pixel inline-block w-2 text-center transition-opacity ${
+                    isSelected ? 'opacity-100 text-slate-900' : 'opacity-0'
+                  }`}
+                  aria-hidden="true"
+                >
+                  ]
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* ローディング表示 */}
-      {isLoading && (
-        <p className="text-sm text-slate-500 text-center py-2">
-          人口データを読み込み中...
-        </p>
-      )}
-
       {/* グラフ描画エリア */}
-      <div className="w-full h-80 sm:h-96">
+      <div
+        className="w-full h-80 sm:h-96 p-4 sm:p-6 [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none"
+        onMouseLeave={() => setHoveredData(null)}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: 30, left: 20, bottom: 20 }}
+            margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
+            accessibilityLayer={false}
+            onMouseMove={handleChartMove}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.grid} />
             <XAxis
               dataKey="year"
-              label={{
-                value: '年度',
-                position: 'insideBottomRight',
-                offset: -10,
-              }}
+              unit="年"
+              tick={{ fill: CHART_THEME.axis, fontSize: 12 }}
             />
             <YAxis
-              label={{ value: '人口数', angle: -90, position: 'insideLeft' }}
+              tick={{ fill: CHART_THEME.axis, fontSize: 12 }}
+              tickFormatter={(value: number) =>
+                value === 0
+                  ? ''
+                  : `${Math.floor(value / 10000).toLocaleString()}万人`
+              }
             />
-            <Tooltip />
-            <Legend />
+            {/* ガイド線（カーソル）を表示し、吹き出しは出さない */}
+            <Tooltip
+              content={() => null}
+              cursor={{
+                stroke: CHART_THEME.cursor,
+                strokeWidth: 1,
+                strokeDasharray: '2 2',
+              }}
+            />
             {selectedPrefectures.map((pref, index) => (
               <Line
                 key={pref.prefCode}
                 type="monotone"
                 dataKey={pref.prefName}
-                stroke={LINE_COLORS[index % LINE_COLORS.length]}
+                stroke={getPrefectureColor(index)}
                 strokeWidth={2}
                 dot={{ r: 3 }}
               />
             ))}
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* 凡例 兼 ホバー情報バー */}
+      <div
+        data-testid="chart-legend"
+        className="bg-slate-50 p-3.5 sm:p-5 border-t border-slate-900 min-h-[52px]"
+      >
+        <div className="flex items-center min-h-[24px] mb-2.5">
+          {hoveredData ? (
+            <span className="font-pixel text-xs font-bold px-2 py-0.5 bg-slate-900 text-white border border-slate-900 tracking-wide">
+              {hoveredData.year}年（{selectedCategory}）
+            </span>
+          ) : (
+            <span className="text-xs text-slate-500 py-0.5">
+              グラフを選択すると各年度の数値を表示します
+            </span>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+          {selectedPrefectures.map((pref, index) => {
+            const value = hoveredData ? hoveredData[pref.prefName] : undefined;
+            return (
+              <div key={pref.prefCode} className="flex items-center gap-1.5">
+                <span
+                  className="w-2.5 h-2.5 rounded-none shrink-0"
+                  style={{ backgroundColor: getPrefectureColor(index) }}
+                />
+                <span className="text-slate-800 font-medium">
+                  {pref.prefName}
+                </span>
+                {value !== undefined && (
+                  <span className="font-pixel font-bold text-slate-900 ml-0.5">
+                    {Math.floor(value / 10000).toLocaleString()}万人
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
