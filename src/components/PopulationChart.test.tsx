@@ -212,7 +212,11 @@ describe('PopulationChart コンポーネント', () => {
 
     // 年度バッジと人口数値が表示される
     expect(within(legend).getByText(/1960年/)).toBeInTheDocument();
-    expect(within(legend).getByText('500万人')).toBeInTheDocument();
+    expect(
+      within(legend).getByText(
+        (_, element) => element?.textContent === '500万人',
+      ),
+    ).toBeInTheDocument();
 
     // ホバーを外す
     await user.unhover(chart);
