@@ -235,26 +235,29 @@ export default function PopulationChart({
               {hoveredData.year}年（{selectedCategory}）
             </span>
           ) : (
-            <span className="text-xs text-slate-500 py-0.5">
+            <span className="text-[11px] text-slate-400 py-0.5 tracking-wider">
               グラフを選択すると各年度の数値を表示します
             </span>
           )}
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+        <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 items-baseline">
           {selectedPrefectures.map((pref, index) => {
             const value = hoveredData ? hoveredData[pref.prefName] : undefined;
             return (
-              <div key={pref.prefCode} className="flex items-center gap-1.5">
+              <div key={pref.prefCode} className="flex items-baseline gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-none shrink-0"
+                  className="w-2.5 h-2.5 rounded-none shrink-0 self-center"
                   style={{ backgroundColor: getPrefectureColor(index) }}
                 />
-                <span className="text-slate-800 font-medium">
+                <span className="text-xs text-slate-700 font-medium">
                   {pref.prefName}
                 </span>
                 {value !== undefined && (
-                  <span className="font-pixel font-bold text-slate-900 ml-0.5">
-                    {Math.floor(value / 10000).toLocaleString()}万人
+                  <span className="font-pixel font-bold text-slate-900 text-xs sm:text-sm ml-0.5">
+                    {Math.floor(value / 10000).toLocaleString()}
+                    <span className="text-[11px] font-normal text-slate-500 ml-0.5">
+                      万人
+                    </span>
                   </span>
                 )}
               </div>

@@ -97,8 +97,8 @@ describe('PrefectureSelector コンポーネント', () => {
     ]);
   });
 
-  // すべて解除ボタンの動作テスト
-  it('「すべて解除」ボタンをクリックした時、空の配列で onSelectionChange が呼ばれること', async () => {
+  // CLEAR（すべて解除）ボタンの動作テスト
+  it('「CLEAR（すべて解除）」ボタンをクリックした時、空の配列で onSelectionChange が呼ばれること', async () => {
     const user = userEvent.setup();
     const handleSelectionChange = vi.fn();
 
@@ -117,6 +117,7 @@ describe('PrefectureSelector コンポーネント', () => {
 
     const clearButton = screen.getByRole('button', { name: 'すべて解除' });
     expect(clearButton).not.toBeDisabled();
+    expect(clearButton).toHaveTextContent('CLEAR');
     // 選択件数が表示されていること
     expect(screen.getByText('1件選択中')).toBeInTheDocument();
     await user.click(clearButton);
@@ -125,7 +126,7 @@ describe('PrefectureSelector コンポーネント', () => {
   });
 
   // 未選択時のボタン非活性テスト
-  it('都道府県が未選択の時、「すべて解除」ボタンが無効化されていること', () => {
+  it('都道府県が未選択の時、「CLEAR（すべて解除）」ボタンが無効化されていること', () => {
     vi.spyOn(hooks, 'usePrefectures').mockReturnValue({
       data: mockPrefectures,
       isLoading: false,
@@ -141,6 +142,7 @@ describe('PrefectureSelector コンポーネント', () => {
 
     const clearButton = screen.getByRole('button', { name: 'すべて解除' });
     expect(clearButton).toBeDisabled();
+    expect(clearButton).toHaveTextContent('CLEAR');
     // 未選択時は選択中テキストが表示されないこと
     expect(screen.queryByText(/選択中/)).not.toBeInTheDocument();
   });

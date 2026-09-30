@@ -36,8 +36,8 @@ export default function App() {
       </main>
 
       {/* フッター */}
-      <footer className="border-t border-slate-900 bg-white py-6 text-center text-xs text-slate-500">
-        <p className="font-pixel tracking-wider">
+      <footer className="border-t border-slate-900 bg-white py-6 text-center text-slate-400">
+        <p className="font-pixel text-[10px] sm:text-[11px] tracking-widest uppercase">
           DATA: PROCESSED FROM RESAS (REGIONAL ECONOMY SOCIETY ANALYZING SYSTEM)
         </p>
       </footer>
