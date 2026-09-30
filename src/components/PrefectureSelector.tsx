@@ -74,11 +74,11 @@ export default function PrefectureSelector({
   // ローディング表示
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 bg-white border border-slate-900">
-        <p className="font-pixel text-xs text-slate-500 uppercase tracking-wider mb-1">
+      <div className="bg-white p-8 border border-slate-900 text-center text-slate-700">
+        <p className="font-pixel text-xs text-slate-500 uppercase tracking-wider mb-2">
           Loading Data...
         </p>
-        <p className="text-sm text-slate-700">都道府県一覧を読み込み中...</p>
+        <p className="text-sm font-medium">都道府県一覧を読み込み中...</p>
       </div>
     );
   }
@@ -86,11 +86,11 @@ export default function PrefectureSelector({
   // エラー表示
   if (error || !prefectures) {
     return (
-      <div className="p-4 sm:p-6 bg-white border border-red-600">
-        <p className="font-pixel text-xs text-red-600 uppercase tracking-wider mb-1">
+      <div className="bg-white p-8 border border-red-600 text-center text-red-600">
+        <p className="font-pixel text-xs uppercase tracking-wider mb-2">
           Error
         </p>
-        <p className="text-sm text-red-600">
+        <p className="text-sm font-medium">
           {error?.message ?? '都道府県一覧の取得に失敗しました'}
         </p>
       </div>
@@ -101,7 +101,7 @@ export default function PrefectureSelector({
   return (
     <fieldset className="bg-white border border-slate-900">
       <details className="group" open>
-        <summary className="flex items-center justify-between cursor-pointer list-none select-none p-3.5 sm:px-5 sm:py-3.5 group-open:border-b border-slate-900 bg-slate-50 hover:bg-slate-100 transition-colors [&::-webkit-details-marker]:hidden">
+        <summary className="flex items-center justify-between cursor-pointer list-none select-none py-2.5 px-3.5 sm:px-5 group-open:border-b border-slate-900 bg-slate-50 hover:bg-slate-100 transition-colors [&::-webkit-details-marker]:hidden">
           <div className="flex items-center gap-2 font-bold text-slate-900">
             <span className="font-pixel text-sm sm:text-base tracking-wider uppercase">
               Filter
@@ -122,9 +122,9 @@ export default function PrefectureSelector({
             </svg>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {selectedPrefectures.length > 0 && (
-              <span className="text-xs text-slate-500 font-medium select-none">
+              <span className="text-[11px] text-slate-500 font-medium select-none">
                 {selectedPrefectures.length}件選択中
               </span>
             )}
@@ -135,9 +135,10 @@ export default function PrefectureSelector({
                 handleClearAll();
               }}
               disabled={selectedPrefectures.length === 0}
-              className="font-pixel text-xs px-3 py-1 border border-slate-900 bg-white hover:bg-slate-900 hover:text-white text-slate-900 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-900 cursor-pointer transition-colors"
+              aria-label="すべて解除"
+              className="font-pixel text-[11px] tracking-wider px-2.5 py-0.5 border border-slate-900 bg-white hover:bg-slate-900 hover:text-white text-slate-900 disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-slate-900 cursor-pointer transition-colors"
             >
-              すべて解除
+              CLEAR
             </button>
           </div>
         </summary>
@@ -163,12 +164,12 @@ export default function PrefectureSelector({
                 className="border-t border-slate-200 pt-3.5 first:border-0 first:pt-0"
               >
                 <div className="mb-2">
-                  <label className="inline-flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-slate-900 hover:text-black">
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer select-none text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 transition-colors">
                     <input
                       type="checkbox"
                       checked={isAllSelected}
                       onChange={() => handleRegionToggle(regionPrefectures)}
-                      className="w-3.5 h-3.5 rounded-none border border-slate-900 accent-slate-900 cursor-pointer"
+                      className="w-3 h-3 rounded-none border border-slate-900 accent-slate-900 cursor-pointer"
                     />
                     <span>{region.regionName}</span>
                   </label>

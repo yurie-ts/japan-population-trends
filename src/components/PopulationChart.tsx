@@ -121,17 +121,29 @@ export default function PopulationChart({
 
   return (
     <div className="bg-white border border-slate-900 flex flex-col">
-      {/* カテゴリ切り替えタブ */}
-      <div className="grid grid-cols-4 lg:flex border-b border-slate-900 bg-white">
-        {POPULATION_CATEGORIES.map((category) => {
+      {/* カテゴリ切り替えタブ（スマホ: 2x2グリッド、タブレット: 4分割、PC: 左寄せインライン） */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex border-b border-slate-900 bg-white">
+        {POPULATION_CATEGORIES.map((category, index) => {
           const isSelected = selectedCategory === category;
+          const isTopRow = index < 2;
+          const isLeftCol = index % 2 === 0;
+          const isLast = index === POPULATION_CATEGORIES.length - 1;
+
           return (
             <button
               key={category}
               type="button"
               aria-pressed={isSelected}
               onClick={() => setSelectedCategory(category)}
-              className={`relative flex items-center justify-center px-1 sm:px-4 py-2.5 sm:py-3 text-[11px] min-[390px]:text-xs sm:text-sm font-medium border-r border-slate-900 last:border-r-0 lg:w-auto lg:px-5 lg:py-3 lg:text-sm lg:last:border-r transition-colors cursor-pointer text-center ${
+              className={`relative flex items-center justify-center px-2 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-colors cursor-pointer text-center ${
+                isTopRow ? 'border-b border-slate-900 sm:border-b-0' : ''
+              } ${
+                isLeftCol
+                  ? 'border-r border-slate-900'
+                  : 'border-r-0 sm:border-r border-slate-900'
+              } ${
+                isLast ? 'sm:last:border-r-0 lg:last:border-r' : ''
+              } lg:w-auto lg:px-5 ${
                 isSelected
                   ? 'text-slate-900'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
@@ -163,13 +175,13 @@ export default function PopulationChart({
 
       {/* グラフ描画エリア */}
       <div
-        className="w-full h-80 sm:h-96 p-4 sm:p-6 [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none"
+        className="w-full h-80 sm:h-96 p-0 [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none"
         onMouseLeave={() => setHoveredData(null)}
       >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
+            margin={{ top: 20, right: 36, bottom: 12, left: 8 }}
             accessibilityLayer={false}
             onMouseMove={handleChartMove}
           >
@@ -180,6 +192,8 @@ export default function PopulationChart({
               tick={{ fill: CHART_THEME.axis, fontSize: 12 }}
             />
             <YAxis
+              width={72}
+              tickMargin={4}
               tick={{ fill: CHART_THEME.axis, fontSize: 12 }}
               tickFormatter={(value: number) =>
                 value === 0
@@ -221,26 +235,29 @@ export default function PopulationChart({
               {hoveredData.year}年（{selectedCategory}）
             </span>
           ) : (
-            <span className="text-xs text-slate-500 py-0.5">
+            <span className="text-[11px] text-slate-400 py-0.5 tracking-wider">
               グラフを選択すると各年度の数値を表示します
             </span>
           )}
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs">
+        <div className="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 items-baseline">
           {selectedPrefectures.map((pref, index) => {
             const value = hoveredData ? hoveredData[pref.prefName] : undefined;
             return (
-              <div key={pref.prefCode} className="flex items-center gap-1.5">
+              <div key={pref.prefCode} className="flex items-baseline gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-none shrink-0"
+                  className="w-2.5 h-2.5 rounded-none shrink-0 self-center"
                   style={{ backgroundColor: getPrefectureColor(index) }}
                 />
-                <span className="text-slate-800 font-medium">
+                <span className="text-xs text-slate-700 font-medium">
                   {pref.prefName}
                 </span>
                 {value !== undefined && (
-                  <span className="font-pixel font-bold text-slate-900 ml-0.5">
-                    {Math.floor(value / 10000).toLocaleString()}万人
+                  <span className="font-pixel font-bold text-slate-900 text-xs sm:text-sm ml-0.5">
+                    {Math.floor(value / 10000).toLocaleString()}
+                    <span className="text-[11px] font-normal text-slate-500 ml-0.5">
+                      万人
+                    </span>
                   </span>
                 )}
               </div>
