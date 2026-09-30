@@ -74,11 +74,11 @@ export default function PrefectureSelector({
   // ローディング表示
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 bg-white border border-slate-900">
-        <p className="font-pixel text-xs text-slate-500 uppercase tracking-wider mb-1">
+      <div className="bg-white p-8 border border-slate-900 text-center text-slate-700">
+        <p className="font-pixel text-xs text-slate-500 uppercase tracking-wider mb-2">
           Loading Data...
         </p>
-        <p className="text-sm text-slate-700">都道府県一覧を読み込み中...</p>
+        <p className="text-sm font-medium">都道府県一覧を読み込み中...</p>
       </div>
     );
   }
@@ -86,11 +86,11 @@ export default function PrefectureSelector({
   // エラー表示
   if (error || !prefectures) {
     return (
-      <div className="p-4 sm:p-6 bg-white border border-red-600">
-        <p className="font-pixel text-xs text-red-600 uppercase tracking-wider mb-1">
+      <div className="bg-white p-8 border border-red-600 text-center text-red-600">
+        <p className="font-pixel text-xs uppercase tracking-wider mb-2">
           Error
         </p>
-        <p className="text-sm text-red-600">
+        <p className="text-sm font-medium">
           {error?.message ?? '都道府県一覧の取得に失敗しました'}
         </p>
       </div>
