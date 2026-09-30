@@ -8,6 +8,8 @@ import './index.css';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: 1000 * 60 * 30, // 30分間は、不要なAPIの再取得を防止
+      gcTime: 1000 * 60 * 60, // 1時間はメモリ上にキャッシュを保持
       refetchOnWindowFocus: false, // ブラウザのタブを切り替えて戻ってきた時の自動再取得をオフ
       retry: 1, // 通信失敗時に1回だけ自動リトライ
     },
